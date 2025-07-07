@@ -16,7 +16,8 @@ type FechaCardProps = {
 
 export default function FechaCard({ numero, partidos }: FechaCardProps) {
   return (
-    <div className="bg-green-900 rounded-lg shadow-inner p-4 m-4 text-white border border-green-700">
+    <div className="bg-green-900 rounded-lg shadow-inner p-4 m-4 text-white border border-green-700 max-w-3xl mx-auto">
+      {/* ↑ Cambiamos: max-w-3xl fija ancho, mx-auto centra */}
       <h2 className="text-lg font-bold mb-3">FECHA {numero}</h2>
       <table className="w-full text-center">
         <thead>

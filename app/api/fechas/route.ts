@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { firestore } from "@/lib/firebaseAdmin";
 
 type Partido = {
@@ -15,33 +15,41 @@ type Equipo = {
   escudo: string;
 };
 
-type AperturaData = {
+type DocumentoPrimeraDivision = {
   equipos: Equipo[];
-  Apertura: {
-    fechas: Record<string, Partido[]>;
-  };
-};
+  [torneo: string]: { fechas: Record<string, Partido[]> } | Equipo[];
+}
 
-export async function GET() {
-  const docRef = firestore.collection("primera_division").doc("2025");
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const año = searchParams.get("año") || "2025";
+  const torneo = searchParams.get("torneo") || "Apertura";
+
+  const docRef = firestore.collection("primera_division").doc(año);
   const docSnap = await docRef.get();
 
   if (!docSnap.exists) {
     return NextResponse.json({}, { status: 404 });
   }
 
-  const data = docSnap.data() as AperturaData;
+  const data = docSnap.data() as DocumentoPrimeraDivision;
+  const equipos = data.equipos;
+  const torneoData = data[torneo] as { fechas: Record<string, Partido[]> };
+
+  if (!torneoData) {
+    return NextResponse.json({}, { status: 404 });
+  }
 
   // Crear un mapa nombre -> escudo
   const mapaEquipos = Object.fromEntries(
-    data.equipos.map((e) => [e.nombre, e.escudo])
+    equipos.map((e) => [e.nombre, e.escudo])
   );
 
   // Enriquecer cada partido con los escudos
   const fechasConEscudos: Record<string, Partido[]> = {};
 
-  for (const [num, partidos] of Object.entries(data.Apertura.fechas)) {
-    fechasConEscudos[num] = partidos.map((p) => ({
+  for (const [num, partidos] of Object.entries(torneoData.fechas)) {
+    fechasConEscudos[num] = (partidos as Partido[]).map((p) => ({
       ...p,
       escudo_local: mapaEquipos[p.local],
       escudo_visitante: mapaEquipos[p.visitante],
