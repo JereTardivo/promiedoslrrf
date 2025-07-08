@@ -16,16 +16,17 @@ type Equipo = {
 };
 
 type DocumentoPrimeraDivision = {
-  equipos: Equipo[];
-  [torneo: string]: { fechas: Record<string, Partido[]> } | Equipo[];
-}
+  equipos?: Equipo[]; // puede faltar en reserva
+  [torneo: string]: { fechas: Record<string, Partido[]> } | Equipo[] | undefined;
+};
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
+  const division = searchParams.get("division") || "primera_division";
   const año = searchParams.get("año") || "2025";
   const torneo = searchParams.get("torneo") || "Apertura";
 
-  const docRef = firestore.collection("primera_division").doc(año);
+  const docRef = firestore.collection(division).doc(año);
   const docSnap = await docRef.get();
 
   if (!docSnap.exists) {
@@ -33,10 +34,24 @@ export async function GET(req: NextRequest) {
   }
 
   const data = docSnap.data() as DocumentoPrimeraDivision;
-  const equipos = data.equipos;
   const torneoData = data[torneo] as { fechas: Record<string, Partido[]> };
 
   if (!torneoData) {
+    return NextResponse.json({}, { status: 404 });
+  }
+
+  // si la división no tiene equipos propios (ej: reserva), traer de primera_division
+  let equipos = data.equipos;
+
+  if (!equipos && division === "reserva") {
+    const primeraDoc = await firestore.collection("primera_division").doc(año).get();
+    if (primeraDoc.exists) {
+      const primeraData = primeraDoc.data() as DocumentoPrimeraDivision;
+      equipos = primeraData.equipos;
+    }
+  }
+
+  if (!equipos) {
     return NextResponse.json({}, { status: 404 });
   }
 

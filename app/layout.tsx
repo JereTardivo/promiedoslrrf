@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Image from "next/image";
-import Link from "next/link";
+
 import "./globals.css";
 
 const geistSans = Geist({
@@ -32,17 +31,6 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white`}
       >
-        <header className="p-4">
-          <Link href="/">
-            <Image
-              src="/lrrf-logo.png"
-              alt="Promiedos LRRF"
-              width={240}
-              height={120}
-              className="w-32 md:w-48 h-auto hover:opacity-80 transition-opacity"
-            />
-          </Link>
-        </header>
         <main>{children}</main>
       </body>
     </html>
