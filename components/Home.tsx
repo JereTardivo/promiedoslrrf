@@ -101,7 +101,7 @@ export default function Home({
       });
     }
 
-    // Lógica avanzada simulada para generar explicaciones de desempate
+    // Simulación desempate simple
     const explicaciones: ExplicacionDesempate[] = [];
     const gruposPorPuntos: Record<number, string[]> = {};
 
@@ -174,7 +174,7 @@ export default function Home({
           id="equipoFilterTabla"
           value={equipoFiltroTabla}
           onChange={(e) => setEquipoFiltroTabla(e.target.value)}
-          className="bg-white text-black p-1 rounded"
+          className="text-black p-1 rounded"
         >
           <option value="TODOS">Mostrar todos</option>
           {equipos.map((eq) => (
@@ -183,21 +183,21 @@ export default function Home({
         </select>
       </div>
 
-      <div className="bg-green-900 rounded-lg shadow-inner p-4 m-4 text-white border border-green-700 max-w-3xl mx-auto">
+      <div className="card">
         <h2 className="text-xl mb-2 font-bold text-center">Tabla de Posiciones</h2>
         <table className="table-auto border-collapse text-sm text-white mx-auto tabla-posiciones-limitada">
           <thead>
-            <tr className="bg-green-700">
-              <th className="border px-2 py-1 text-center whitespace-nowrap">#</th>
-              <th className="border px-2 py-1 text-center whitespace-nowrap">Equipo</th>
-              <th className="border px-2 py-1 text-center whitespace-nowrap">PJ</th>
-              <th className="border px-2 py-1 text-center whitespace-nowrap">Pts</th>
-              <th className="border px-2 py-1 text-center whitespace-nowrap">PG</th>
-              <th className="border px-2 py-1 text-center whitespace-nowrap">PE</th>
-              <th className="border px-2 py-1 text-center whitespace-nowrap">PP</th>
-              <th className="border px-2 py-1 text-center whitespace-nowrap">GF</th>
-              <th className="border px-2 py-1 text-center whitespace-nowrap">GC</th>
-              <th className="border px-2 py-1 text-center whitespace-nowrap">DG</th>
+            <tr>
+              <th className="border px-2 py-1 text-center">#</th>
+              <th className="border px-2 py-1 text-center">Equipo</th>
+              <th className="border px-2 py-1 text-center">PJ</th>
+              <th className="border px-2 py-1 text-center">Pts</th>
+              <th className="border px-2 py-1 text-center">PG</th>
+              <th className="border px-2 py-1 text-center">PE</th>
+              <th className="border px-2 py-1 text-center">PP</th>
+              <th className="border px-2 py-1 text-center">GF</th>
+              <th className="border px-2 py-1 text-center">GC</th>
+              <th className="border px-2 py-1 text-center">DG</th>
             </tr>
           </thead>
           <tbody>
@@ -208,7 +208,7 @@ export default function Home({
               .map(([equipo, stats], index) => (
                 <tr key={equipo}>
                   <td className="border px-2 py-1 text-center">{index + 1}</td>
-                  <td className="border px-2 py-1 ">{equipo}</td>
+                  <td className="border px-2 py-1 text-center">{equipo}</td>
                   <td className="border px-2 py-1 text-center">{stats.PJ}</td>
                   <td className="border px-2 py-1 text-center">{stats.Pts}</td>
                   <td className="border px-2 py-1 text-center">{stats.PG}</td>
@@ -254,16 +254,50 @@ export default function Home({
                     </tbody>
                   </table>
                 </div>
-                <div className="mt-2 text-sm text-green-300">
-                  {exp.clasificados.map((c, i) => (
-                    <div key={i}>
-                      <b>{c.equipo}</b> - Clasifica {c.puesto}° por desempate {c.criterio}
-                    </div>
-                  ))}
-                </div>
               </li>
             ))}
           </ul>
+        </div>
+      )}
+
+      {/* Cuadro de clasificación */}
+      {equiposOrdenados.length >= 7 && (
+        <div className="mt-10 max-w-5xl mx-auto p-4 bg-slate-800 text-white rounded">
+          <h2 className="text-xl font-bold mb-6 text-center">Cuadro de Clasificación</h2>
+          <div className="flex flex-col items-center space-y-8">
+            <div className="flex items-center space-x-4">
+              <div className="flex flex-col items-end">
+                <div className="border px-4 py-2 rounded bg-yellow-400 text-black font-bold">
+                  1º {equiposOrdenados[0][0]}
+                </div>
+                <div className="text-xs mt-1">Semifinal directo</div>
+              </div>
+              <div className="border-t-2 border-l-2 border-white h-12 w-8"></div>
+              <div className="border px-4 py-2 rounded">Ganador 2º vs 7º</div>
+            </div>
+
+            <div className="border-t-2 w-32 my-4"></div>
+
+            <div className="flex items-center space-x-4">
+              <div className="flex flex-col items-end">
+                <div className="flex items-center space-x-2">
+                  <div className="border px-4 py-2 rounded">{equiposOrdenados[3][0]}</div>
+                  <span className="mx-1">vs</span>
+                  <div className="border px-4 py-2 rounded">{equiposOrdenados[4][0]}</div>
+                </div>
+                <div className="text-xs mt-1">Cuartos de final</div>
+              </div>
+              <div className="border-t-2 border-l-2 border-white h-12 w-8"></div>
+              <div className="border px-4 py-2 rounded">Ganador semi</div>
+            </div>
+
+            <div className="flex items-center space-x-2 mt-6">
+              <div className="border px-4 py-2 rounded">{equiposOrdenados[2][0]}</div>
+              <span className="mx-1">vs</span>
+              <div className="border px-4 py-2 rounded">{equiposOrdenados[5][0]}</div>
+            </div>
+            <div className="text-xs">Cuartos de final</div>
+          </div>
         </div>
       )}
     </main>
