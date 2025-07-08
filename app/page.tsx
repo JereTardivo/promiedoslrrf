@@ -1,36 +1,13 @@
 "use client";
-import { useEffect, useState } from "react";
-import FechaCard from "@/components/FechaCard";
+import { useState } from "react";
+import Home from "@/components/Home";
 import Image from "next/image";
 import Link from "next/link";
 
-type Partido = {
-  local: string;
-  goles_local: number;
-  visitante: string;
-  goles_visitante: number;
-  escudo_local?: string;
-  escudo_visitante?: string;
-};
-
-export default function Home() {
+export default function Page() {
   const [division, setDivision] = useState("primera_division");
   const [año, setAño] = useState("2025");
   const [torneo, setTorneo] = useState("Apertura");
-
-  const [fechas, setFechas] = useState<Record<string, Partido[]>>({});
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      const res = await fetch(`/api/fechas?division=${division}&año=${año}&torneo=${torneo}`);
-      const data = await res.json();
-      setFechas(data);
-      setLoading(false);
-    };
-    fetchData();
-  }, [division, año, torneo]);
 
   return (
     <div className="flex">
@@ -45,7 +22,8 @@ export default function Home() {
             className="w-32 md:w-48 h-auto hover:opacity-80 transition-opacity"
           />
         </Link>
-
+        <br />
+        <br />
         <h2 className="text-xl font-bold mb-4">Filtros</h2>
 
         <div className="mb-4">
@@ -68,11 +46,7 @@ export default function Home() {
             onChange={(e) => setAño(e.target.value)}
           >
             <option value="2025">2025</option>
-            <option value="2024">2026</option>
-            <option value="2023">2027</option>
-            <option value="2023">2028</option>
-            <option value="2023">2029</option>
-            <option value="2023">2030</option>
+            {/* podés añadir más años dinámicamente luego */}
           </select>
         </div>
 
@@ -91,17 +65,12 @@ export default function Home() {
 
       {/* Contenido principal */}
       <main className="ml-64 p-6 flex-1">
-        <h1 className="text-2xl text-center font-bold mb-6">
+        <h1 className="text-3xl text-center font-bold mb-6">
           {division === "primera_division" ? "Primera División" : "Reserva"} {año} - {torneo}
         </h1>
 
-        {loading ? (
-          <div className="text-white">Cargando...</div>
-        ) : (
-          Object.entries(fechas).map(([numero, partidos]) => (
-            <FechaCard key={numero} numero={numero} partidos={partidos} />
-          ))
-        )}
+        {/* Pasamos props a Home para que haga el fetch con estos filtros */}
+        <Home division={division} año={año} torneo={torneo} />
       </main>
     </div>
   );
